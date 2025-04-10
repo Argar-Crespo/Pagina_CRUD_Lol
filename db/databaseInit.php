@@ -10,19 +10,20 @@ if (file_exists($db_path)) {
 
 $db = new SQLite3('databaseLol.db');
 
-// Creo la tabla con los campos que creemos interesantes
+
 $db->exec("CREATE TABLE IF NOT EXISTS campeones (
     id TEXT PRIMARY KEY,
     nombre TEXT NOT NULL,
-    titulo TEXT,
-    rol1 TEXT,
-    rol2 TEXT,
-    ataque INTEGER,
-    defensa INTEGER,
-    magia INTEGER,
-    dificultad INTEGER,
+    titulo TEXT NOT NULL,
+    rol1 TEXT NOT NULL CHECK(rol1 IN ('Fighter', 'Mage', 'Assassin', 'Marksman', 'Tank', 'Support')),
+    rol2 TEXT CHECK(rol2 IN ('Fighter', 'Mage', 'Assassin', 'Marksman', 'Tank', 'Support')),
+    ataque INTEGER NOT NULL,
+    defensa INTEGER NOT NULL,
+    magia INTEGER NOT NULL,
+    dificultad INTEGER NOT NULL,
     imagen TEXT
 );");
+
 
 // Cargo los datos de la api en sus respectivos valores para luego insertarlo dentro de la base de datos
 $url = "https://ddragon.leagueoflegends.com/cdn/15.7.1/data/es_ES/champion.json";
@@ -36,8 +37,9 @@ if ($data && isset($data['data'])) {
         $id = $champ['id'];
         $nombre = $champ['name'];
         $titulo = $champ['title'];
-        $rol1 = isset($champ['tags'][0]) ? $champ['tags'][0] : '';
-        $rol2 = isset($champ['tags'][1]) ? $champ['tags'][1] : '';
+        $valoresPermitidos = ['Fighter', 'Mage', 'Assassin', 'Marksman', 'Tank', 'Support'];
+        $rol1 = (isset($champ['tags'][0]) && in_array($champ['tags'][0], $valoresPermitidos)) ? $champ['tags'][0] : 'Fighter';
+        $rol2 = (isset($champ['tags'][1]) && in_array($champ['tags'][1], $valoresPermitidos)) ? $champ['tags'][1] : null;
         $ataque = $champ['info']['attack'];
         $defensa = $champ['info']['defense'];
         $magia = $champ['info']['magic'];
@@ -51,7 +53,7 @@ if ($data && isset($data['data'])) {
         $stmt->bindValue(':nombre', $nombre);
         $stmt->bindValue(':titulo', $titulo);
         $stmt->bindValue(':rol1', $rol1);
-        $stmt->bindValue(':rol2', $rol2);
+        $stmt->bindValue(':rol2', $rol2, is_null($rol2) ? SQLITE3_NULL : SQLITE3_TEXT);
         $stmt->bindValue(':ataque', $ataque, SQLITE3_INTEGER);
         $stmt->bindValue(':defensa', $defensa, SQLITE3_INTEGER);
         $stmt->bindValue(':magia', $magia, SQLITE3_INTEGER);

@@ -21,7 +21,7 @@ if ($campeon) {
     // Mostrar campeón desde base de datos
     echo '<div id="champion-detail-box">';
     echo '<div class="champion-image">';
-    echo "<img src='{$campeon['imagen']}' alt='{$campeon['nombre']}'>";
+    echo "<img src='../{$campeon['imagen']}' alt='{$campeon['nombre']}'>";
     echo '</div>';
     echo "<p class='champion-name'>{$campeon['nombre']}</p>";
     echo "<p class='champion-title'>" . ucwords(strtolower($campeon['titulo'])) . "</p>";
